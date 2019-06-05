@@ -1,10 +1,9 @@
-import org.scalajs.dom.Element
 import org.scalajs.dom.html.Input
+import org.scalajs.dom.{Element, Event}
 import org.scalatest.{Matchers, WordSpec}
 
 class EventsHandlingTest extends WordSpec with Matchers {
   import io.udash.wrappers.jquery._
-
   import scalatags.JsDom.all._
 
   class C(i: Int)
@@ -67,6 +66,19 @@ class EventsHandlingTest extends WordSpec with Matchers {
       event = null
       jQ(i).trigger("change")
       event should be(null)
+    }
+
+    "stop propagation of JQueryEvents when Events stop their propagation" in {
+      val element = div().render
+      val wrapperElement = div(element).render
+
+      element.addEventListener(EventName.click, { event: Event => event.stopImmediatePropagation() })
+
+      var counter = 0
+      jQ(wrapperElement).on(EventName.click, (_, _) => counter += 1)
+
+      jQ(element).trigger(EventName.click)
+      counter should be(0)
     }
   }
 
